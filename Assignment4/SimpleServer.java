@@ -31,7 +31,7 @@ public class SimpleServer3 {
             try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
                 String message;
                 while (!(message = br.readLine()).equalsIgnoreCase("exit")) {
-                    out.writeUTF( message);
+                    out.writeUTF(message);
                 }
                 out.writeUTF("exit");
                 System.out.println("Server ended the chat.");
@@ -39,8 +39,7 @@ public class SimpleServer3 {
             } catch (IOException e) {
                 System.out.println("Connection closed.");
             }
-         }
-        });
+        });  // <--- This closing parenthesis was missing
 
         receiveThread.start();
         sendThread.start();
