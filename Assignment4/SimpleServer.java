@@ -1,18 +1,48 @@
 import java.net.*;
 import java.io.*;
 
-public class SimpleServer {
-    public static void main(String args[]) throws IOException {
-        ServerSocket s = new ServerSocket(1254);
+public class SimpleServer3 {
+    public static void main(String[] args) throws IOException {
+        ServerSocket serverSocket = new ServerSocket(1254);
         System.out.println("Server is running. Waiting for a client...");
-        Socket s1 = s.accept();
+        Socket socket = serverSocket.accept();
         System.out.println("Client connected!");
-        OutputStream s1out = s1.getOutputStream();
-        DataOutputStream dos = new DataOutputStream(s1out);
-        dos.writeUTF("Hi Saurabh\nWelcome to the Java Socket Program.\nHave a great day! ");
-        dos.close();
-        s1out.close();
-        s1.close();
-        System.out.println("Connection closed.");
+
+        // Input and output streams
+        DataInputStream in = new DataInputStream(socket.getInputStream());
+        DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+
+        // Thread to receive messages
+        Thread receiveThread = new Thread(() -> {
+            try {
+                String message;
+                while (!(message = in.readUTF()).equalsIgnoreCase("exit")) {
+                    System.out.println("Client: " + message);
+                }
+                System.out.println("Client ended the chat.");
+                System.exit(0);
+            } catch (IOException e) {
+                System.out.println("Connection closed.");
+            }
+        });
+
+        // Thread to send messages
+        Thread sendThread = new Thread(() -> {
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
+                String message;
+                while (!(message = br.readLine()).equalsIgnoreCase("exit")) {
+                    out.writeUTF( message);
+                }
+                out.writeUTF("exit");
+                System.out.println("Server ended the chat.");
+                System.exit(0);
+            } catch (IOException e) {
+                System.out.println("Connection closed.");
+            }
+         }
+        });
+
+        receiveThread.start();
+        sendThread.start();
     }
 }
